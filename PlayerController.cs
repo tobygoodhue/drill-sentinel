@@ -12,21 +12,24 @@ public class PlayerController : MonoBehaviour
     public float walkMaxVel; // Maximum speed player can move when walking
     public float sprintMaxVel; // Maximum speed player can move when sprinting
     public float curVel; // Current velocity of the player
+    public float gunDamage; // Damage the gun does
+    public float buildRange; // Range in which player can build
     public GameObject cam; // Main camera
     public GameObject crosshair; // Crosshair that appears when the player is looking at an object that he can interact with
-    public AudioSource gunSource; // Gun sound
-    public AudioClip gunShot; // Gun shot sound
     public GameObject muzzleFlash; // Muzzle flash
     public GameObject hitmarker; // Hitmarker
+    public GameObject curHeld; // Currently held weapon
+    public GameObject tempTurret; // Temporary turret for placeholding purposes
+    public List<GameObject> weapons; // All weapons player has
+    public AudioClip gunShot; // Gun shot sound
     public AudioClip hitmarkerSound; // Hitmarker sound
     public AudioSource hitmarkerSource; // Hitmarker sound source
-    public float gunDamage; // Damage the gun does
-    public List<GameObject> weapons; // All weapons player has
-    public GameObject curHeld; // Currently held weapon
+    public AudioSource gunSource; // Gun sound
 
     private Rigidbody rb; // Player's Rigidbody
     private float x, y, xx; // Variables used for rotating the player and camera, as well as clamping camera rotation
     private bool isGrounded; // Whether or not the player is on solid ground
+    private bool canBuild; // Whether or not player can build
 
 
     void Start()
@@ -41,7 +44,36 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        //Weapons
+        // Building
+        //------------------------------------------------------------------------
+        RaycastHit possBuildHit; // Possible placement for build
+
+        if(curHeld == weapons[1])
+        {
+            if(Physics.Raycast(cam.transform.position, cam.transform.forward, out possBuildHit, buildRange))
+            {
+                canBuild = true;
+            }
+            else
+            {
+                canBuild = false;
+            }
+        }
+        else
+        {
+            canBuild = false;
+        }
+
+        if(Physics.Raycast(cam.transform.position, cam.transform.forward, out possBuildHit, buildRange) && canBuild && Input.GetMouseButtonDown(0))
+        {
+            Quaternion correctedRotation = Quaternion.LookRotation(possBuildHit.normal) * Quaternion.Euler(90, 0, 0);
+            Instantiate(tempTurret, possBuildHit.point, correctedRotation);
+        }
+
+        //------------------------------------------------------------------------
+
+        // Weapons
+        //------------------------------------------------------------------------
         if (Input.GetMouseButtonDown(0) && curHeld == weapons[0]) // Check for left mouse button click
         {
             StartCoroutine(Shoot());
