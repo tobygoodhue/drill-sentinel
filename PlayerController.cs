@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     private float x, y, xx; // Variables used for rotating the player and camera, as well as clamping camera rotation
     private bool isGrounded; // Whether or not the player is on solid ground
     private bool canBuild; // Whether or not player can build
+    private RaycastHit buildHit; // Confirmed build hit, stemming from possBuildHit (CANNOT BE LOCAL VAR, DUE TO VAR ONLY BEING ASSIGNED WITHIN A SEPERATE IF STATEMENT)
 
 
     void Start()
@@ -48,11 +49,12 @@ public class PlayerController : MonoBehaviour
         //------------------------------------------------------------------------
         RaycastHit possBuildHit; // Possible placement for build
 
-        if(curHeld == weapons[1])
+        if(curHeld == weapons[1]) // Check if player is holding hammer
         {
-            if(Physics.Raycast(cam.transform.position, cam.transform.forward, out possBuildHit, buildRange))
+            if(Physics.Raycast(cam.transform.position, cam.transform.forward, out possBuildHit, buildRange)) // Cast ray to see if player is able to build
             {
                 canBuild = true;
+                buildHit = possBuildHit; // Set private var buildHit
             }
             else
             {
@@ -64,10 +66,12 @@ public class PlayerController : MonoBehaviour
             canBuild = false;
         }
 
-        if(Physics.Raycast(cam.transform.position, cam.transform.forward, out possBuildHit, buildRange) && canBuild && Input.GetMouseButtonDown(0))
+        if(canBuild && Input.GetMouseButtonDown(0)) // Check to see if player can build, and is left clicking
         {
-            Quaternion correctedRotation = Quaternion.LookRotation(possBuildHit.normal) * Quaternion.Euler(90, 0, 0);
-            Instantiate(tempTurret, possBuildHit.point, correctedRotation);
+            Quaternion correctedRotation = Quaternion.LookRotation(buildHit.normal) * Quaternion.Euler(90, 0, 0);
+            Instantiate(tempTurret, buildHit.point, correctedRotation);
+            // Rotation of instantiated object is by default a -90 degree angle to the normal it is instantiated on to, rotation must be corrected before instiating
+            // Rotation is set to match normal so built objects match the normal of the area of terrain they are built on
         }
 
         //------------------------------------------------------------------------
