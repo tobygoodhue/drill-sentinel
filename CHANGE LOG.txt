@@ -1,0 +1,13 @@
+CHANGE LOG
+
+3/10/25
+.Added basic building system
+.Fixed possible bug that would allow player to build when holding gun if switched to from hammer at right time
+
+UPCOMING CHANGES
+
+.Add basic enemy AI (set agro to player or mining rig, attack, switch agro)
+.Turret AI (agro on enemy, attack enemy)
+.Building indicator (alert player whether or not they can build in specified location)
+.Enemy weapons/attacks
+.Enemy types
